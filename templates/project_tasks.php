@@ -14,7 +14,7 @@ if ( $query->have_posts() ) : ?>
 				<tr>
 					<th><?php _e( 'Description', 'orbis' ); ?></th>
 					<th><?php _e( 'Time', 'orbis' ); ?></th>
-					<th><?php _e( 'Comments', 'orbis' ); ?></th>
+					<th><?php _e( 'Due', 'orbis' ); ?></th>
 				</tr>
 			</thead>
 
@@ -25,12 +25,13 @@ if ( $query->have_posts() ) : ?>
 					<tr id="post-<?php the_ID(); ?>" <?php post_class(); ?>>
 						<td>
 							<a href="<?php the_permalink(); ?>"><?php the_title(); ?></a>
+							<?php comments_number( '', '<span class="badge">1</span>', '<span class="badge">%</span>' ); ?>
 						</td>
 						<td class="task-time">
 							<?php orbis_task_time(); ?>
 						</td>
 						<td>
-							<span class="badge"><?php comments_number( '0', '1', '%' ); ?></span>
+							<?php orbis_task_due_at(); ?>
 						</td>
 					</tr>
 			
