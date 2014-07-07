@@ -1,19 +1,33 @@
 <div class="content">
 	<?php
-	
-	$result = $wpdb->get_results( '
-		SELECT SUM(wp_orbis_hours_registration.number_seconds) AS total_seconds, wp_orbis_activities.name AS activity_name, wp_orbis_activities.id AS activity_id, wp_orbis_projects.* 
-		FROM wp_orbis_hours_registration 
-		LEFT JOIN wp_orbis_activities ON(wp_orbis_hours_registration.activity_id = wp_orbis_activities.id)
-		LEFT JOIN wp_orbis_projects ON(wp_orbis_hours_registration.project_id = wp_orbis_projects.id)
-		WHERE wp_orbis_projects.post_id = '. get_the_ID() .' 
-		GROUP BY wp_orbis_activities.id
-	' );
-	
+
+	$query = $wpdb->prepare( "
+		SELECT
+			SUM( timesheet.number_seconds ) AS total_seconds,
+			activity.name AS activity_name,
+			activity.id AS activity_id,
+			project.*
+		FROM
+			$wpdb->orbis_timesheets AS timesheet
+				LEFT JOIN
+			$wpdb->orbis_activities AS activity
+					ON timesheet.activity_id = activity.id
+				LEFT JOIN
+			$wpdb->orbis_projects AS project
+					ON timesheet.project_id = project.id
+		WHERE
+			project.post_id = %d
+		GROUP BY
+			activity.id
+		;
+	", get_the_ID() );
+
+	$result = $wpdb->get_results( $query );
+
 	$flot_data = array();
-	
+
 	foreach ( $result as $row ) {
-		$label = sprintf( 
+		$label = sprintf(
 			'<strong>%s</strong> - %s',
 			orbis_time( $row->total_seconds ),
 			$row->activity_name
@@ -35,7 +49,7 @@
 			)
 		)
 	);
-	
+
 	?>
 	<div id="donut" class="graph" style="height: 400px; width: 100%;"></div>
 
